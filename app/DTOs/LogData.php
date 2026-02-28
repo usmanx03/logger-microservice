@@ -24,25 +24,19 @@ class LogData
     {
         $data = $request->getParsedBody() ?? [];
 
-        var_dump($data);
-
         $log = new self();
 
         $log->app = $data['app'] ?? "Unknown-app";
 
-        $envStr = strtoupper($data['env'] ?? 'PROD');
-        $log->env = LogEnv::tryFrom($envStr) ?? LogEnv::PROD;
+        $envStr = $data['env'] ?? 'production';
+        $log->env = LogEnv::tryFrom($envStr) ?? LogEnv::PRODUCTION;
 
-        $severityStr = strtoupper($data['severity'] ?? 'INFO');
-        var_dump($severityStr);exit(); // TODO: Enums must have uppercase keys and lower case strings
+        $severityStr = $data['severity'] ?? 'info';
         $log->severity = LogSeverity::tryFrom($severityStr) ?? LogSeverity::INFO;
 
         $log->message = $data['message'] ?? "No message received";
         $log->context = $data['context'] ?? [];
         $log->trace = $data['trace'] ?? [];
-
-        var_dump($log);
-        exit();
 
         return $log;
     }

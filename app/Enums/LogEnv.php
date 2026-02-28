@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace app\Enums;
+namespace App\Enums;
 
 enum LogEnv: string
 {
-    case PROD = 'PROD';
-    case STAGING = 'STAGING';
-    case DEBUG = 'DEBUG';
+    case PRODUCTION = 'production';
+    case STAGING = 'staging';
+    case DEBUG = 'debug';
 }

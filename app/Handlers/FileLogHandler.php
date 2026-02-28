@@ -5,14 +5,11 @@ declare(strict_types=1);
 namespace App\Handlers;
 
 use App\DTOs\LogData;
-use App\Enums\LogSeverity;
 use App\Helpers\Config;
-use App\Interfaces\LogHandlerInterface;
 use Monolog\Handler\StreamHandler;
-use Monolog\Level;
 use Monolog\Logger;
 
-class FileLogHandler implements LogHandlerInterface
+class FileLogHandler extends AbstractLogHandler
 {
     private Logger $logger;
 
@@ -52,16 +49,5 @@ class FileLogHandler implements LogHandlerInterface
                 'env' => $logData->env->value,
             ])
         );
-    }
-
-    private function mapSeverityToMonologLevel(LogSeverity $severity): Level
-    {
-        return match ($severity) {
-            LogSeverity::DEBUG => Level::Debug,
-            LogSeverity::INFO => Level::Info,
-            LogSeverity::WARNING => Level::Warning,
-            LogSeverity::ERROR => Level::Error,
-            LogSeverity::CRITICAL => Level::Critical,
-        };
     }
 }

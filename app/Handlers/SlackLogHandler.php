@@ -1,68 +1,52 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Handlers;
 
 use App\DTOs\LogData;
-use App\Enums\LogSeverity;
-use App\Interfaces\LogHandlerInterface;
-use Monolog\Logger;
+use App\Helpers\Config;
 use Monolog\Handler\SlackWebhookHandler;
 use Monolog\Level;
-use App\Helpers\Config;
+use Monolog\Logger;
 
-class SlackLogHandler implements LogHandlerInterface
+class SlackLogHandler extends AbstractLogHandler
 {
-    private Logger $logger;
-
-    public function __construct()
-    {
-        // Get Slack webhook dynamically from Config helper
-        $env = Config::get('app.env', 'production');
-        $webhookUrl = Config::get("handlers.slack.{$env}.webhook_url", '');
-
-        if (empty($webhookUrl)) {
-            throw new \RuntimeException('Slack webhook URL is not configured in ENV');
-        }
-
-        $this->logger = new Logger('slack');
-        $this->logger->pushHandler(
-            new SlackWebhookHandler(
-                $webhookUrl,
-                null,   // channel is pre-configured in Slack
-                null,   // username is pre-configured
-                true,   // use attachment
-                null,   // icon emoji
-                true,   // short attachment
-                false,  // include context and extra
-                Level::Error // minimum level
-            )
-        );
-    }
-
     public function handle(LogData $logData): void
     {
+        $env = $logData->env->value;
+
+        // Resolve webhook using env from request payload
+        $webhookUrl = Config::get("handlers.slack.$env.webhook_url");
+
+        if (empty($webhookUrl)) {
+            throw new \RuntimeException("Slack webhook not configured for env: $env");
+        }
+
+        $logger = new Logger('slack');
+        $logger->pushHandler(
+            new SlackWebhookHandler(
+                $webhookUrl,
+                null,
+                null,
+                true,
+                null,
+                true,
+                false,
+                Level::Error
+            )
+        );
+
         $level = $this->mapSeverityToMonologLevel($logData->severity);
 
-        $this->logger->log(
+        $logger->log(
             $level,
             $logData->message,
             array_merge($logData->context, [
                 'trace' => $logData->trace,
                 'app' => $logData->app,
-                'env' => $logData->env->value,
+                'env' => $env,
             ])
         );
-    }
-
-    private function mapSeverityToMonologLevel(LogSeverity $severity): Level
-    {
-        return match ($severity) {
-            LogSeverity::DEBUG => Level::Debug,
-            LogSeverity::INFO => Level::Info,
-            LogSeverity::WARNING => Level::Warning,
-            LogSeverity::ERROR => Level::Error,
-            LogSeverity::CRITICAL => Level::Critical,
-        };
     }
 }
