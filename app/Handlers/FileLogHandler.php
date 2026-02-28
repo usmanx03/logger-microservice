@@ -15,7 +15,7 @@ class FileLogHandler extends AbstractLogHandler
 
     public function __construct()
     {
-        $this->logger = new Logger('file');
+        $this->logger = new Logger('log');
     }
 
     public function handle(LogData $logData): void

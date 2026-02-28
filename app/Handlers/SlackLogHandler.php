@@ -23,7 +23,7 @@ class SlackLogHandler extends AbstractLogHandler
             throw new \RuntimeException("Slack webhook not configured for env: $env");
         }
 
-        $logger = new Logger('slack');
+        $logger = new Logger('log');
         $logger->pushHandler(
             new SlackWebhookHandler(
                 $webhookUrl,
