@@ -21,9 +21,13 @@ class LoggerController extends AbstractController
     {
         $logData = $this->resolveLogDataFromRequest($request);
 
-        $success = $this->loggerService->log($logData);
+        $_ = $this->loggerService->log($logData);
 
-        $response->getBody()->write("Logs handled: $success");
+        $response = $response->withHeader('Content-type', 'application/json');
+        $response->getBody()->write(json_encode([
+            "message" => "Success",
+        ]));
+
         return $response;
     }
 
